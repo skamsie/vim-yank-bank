@@ -1,13 +1,18 @@
-" return new list in reversed order
+if exists("g:yb_plugin_loaded")
+  finish
+endif
+let g:yb_plugin_loaded = 1
+
+" Return new list in reversed order
 function! s:ListReverse(l)
   let new_list = deepcopy(a:l)
   call reverse(new_list)
   return new_list
 endfunction
 
-" copy `register_reference` to first register from `register_list`
-" and cycle the rest of registers by moving position to the next
-" one in the list
+" Copy `register_reference` to first register from `register_list`
+" and cycle the rest of the registers in the list by moving
+" position to the next one in the list
 function! s:PreserveYank(register_list, register_reference)
   let l:keys = a:register_list
   let l:reversed_keys = s:ListReverse(l:keys)
@@ -19,7 +24,17 @@ function! s:PreserveYank(register_list, register_reference)
   execute "let @" . l:keys[0] . ' = ' . a:register_reference
 endfunction
 
-" save yanks
+" Save * register to a global variable (use with FocusLost event);
+" on FocusGained we can check if * register is same with g:yb_star_reg and if
+" it is, we don't update the custom clipboard registers.
+" This is a guard to prevent situations where clipboard is set to 'unnamed',
+" vim loses focus, and when it gets focus again, we would update the custom
+" clipboard registers even if there was nothing copied
+function! s:RememberClip()
+  let g:yb_star_reg = @*
+endfunction
+
+" Save yanks
 function! s:SaveLastYank(register_list)
   if v:event["regname"] == ""
     if v:event["operator"] == "y"
@@ -28,21 +43,18 @@ function! s:SaveLastYank(register_list)
   endif
 endfunction
 
-" save system clipboard
+" Save system clipboard
 function! s:SaveLastClip(register_list)
-  call s:PreserveYank(a:register_list, '@*')
+  if exists("g:yb_star_reg") && g:yb_star_reg != @*
+    call s:PreserveYank(a:register_list, '@*')
+  endif
 endfunction
 
-augroup yb_yanks
-  if exists("g:yb_yank_registers")
-    autocmd!
-    autocmd TextYankPost * call s:SaveLastYank(g:yb_yank_registers)
-  endif
-augroup END
+if exists("g:yb_yank_registers")
+  autocmd TextYankPost * call s:SaveLastYank(g:yb_yank_registers)
+endif
 
-augroup yb_clip
-  if exists("g:yb_clip_registers")
-    autocmd!
-    autocmd FocusGained * call s:SaveLastClip(g:yb_clip_registers)
-  endif
-augroup END
+if exists("g:yb_clip_registers")
+  autocmd FocusGained * call s:SaveLastClip(g:yb_clip_registers)
+  autocmd FocusLost * call s:RememberClip()
+endif
