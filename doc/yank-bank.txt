@@ -31,13 +31,16 @@ for example Neovim.
 
 USAGE                                            *yank-bank-usage*
 
-In your vimrc, set the registers to use for storing yanks. Note that you can
-use any register, but it is not a good idea to use any of the numbered
-registers or the special registers as vim uses them and it can lead to
+In your vimrc, set the registers to use for storing yanks. You can use
+any register, but it is not a good idea to use any of the numbered
+registers or the special registers because vim uses them and it can lead to
 unexpected results.
 
 `let g:yb_yank_registers = ["a", "s", "d", "f"]`
 `let g:yb_clip_registers = ["j", "k", "l"]`
+
+NOTE: after adding the global variables above in your vimrc, you need to restart
+vim, sourcing is not enough.
 
 Now if you yank something without explicitly specifying a register,
 for example with `yy` or `yw`, the text is stored to register `a`. Yank again
@@ -68,5 +71,3 @@ copy something from another program using system commands, it is saved to the
 `*` register. If you have clipboard set to `unnamed`, then this register is
 shared between vim and system clipboard so your system clipboard yanks can be
 easily lost in a similar way to how vim yanks are lost.
-
-vim:ft=help
