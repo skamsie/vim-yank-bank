@@ -50,6 +50,12 @@ function! s:SaveLastClip(register_list)
   endif
 endfunction
 
+function! s:YankBankCommand()
+  let l:yanks = exists("g:yb_yank_registers") ? join(g:yb_yank_registers) : ""
+  let l:clip = exists("g:yb_clip_registers") ? join(g:yb_clip_registers) : ""
+  return ":reg(" . join([l:yanks, l:clip]) .")"
+endfunction
+
 if exists("g:yb_yank_registers")
   autocmd TextYankPost * call s:SaveLastYank(g:yb_yank_registers)
 endif
@@ -58,3 +64,5 @@ if exists("g:yb_clip_registers")
   autocmd FocusGained * call s:SaveLastClip(g:yb_clip_registers)
   autocmd FocusLost * call s:RememberClip()
 endif
+
+command! YB exec s:YankBankCommand()

@@ -1,0 +1,72 @@
+*yank-bank.txt* vim-yank-bank documentation
+
+Author:  skamsie
+Website: https://github.com/skamsie/vim-yank-bank
+
+===============================================================================
+CONTENTS                                         *yank-bank*
+
+1. Introduction ................................ |yank-bank-intro|
+2. Requirements ................................ |yank-bank-requirements|
+3. Usage ....................................... |yank-bank-usage|
+4. Vim Yanks in a nutshell ..................... |vim-yanks-in-a-nutshell|
+===============================================================================
+
+
+INTRODUCTION                                     *yank-bank-intro*
+
+Yank Bank is a lightweight plugin for preserving yanks and system clipboard
+into named registers, without altering the default vim behavior. It works by
+creating a backup to an arbitrary number of registers specified by the user
+which are used to rotate the last 'n' yanks and clipboard yanks.
+
+
+REQUIREMENTS                                     *yank-bank-requirements*
+
+For preserving text copied from the system clipboard you need vim compiled with
+clipboard support and 'FocusGained' and 'FocusLost' events support. The focus
+events are usually available only for the GUI version and a few console versions,
+for example Neovim.
+
+
+USAGE                                            *yank-bank-usage*
+
+In your vimrc, set the registers to use for storing yanks. Note that you can
+use any register, but it is not a good idea to use any of the numbered
+registers or the special registers as vim uses them and it can lead to
+unexpected results.
+
+`let g:yb_yank_registers = ["a", "s", "d", "f"]`
+`let g:yb_clip_registers = ["j", "k", "l"]`
+
+Now if you yank something without explicitly specifying a register,
+for example with `yy` or `yw`, the text is stored to register `a`. Yank again
+and the previous yank is now in register `s` and the new yanked text is in `a`.
+Each yank pushes the previous text to the next register specified in the array.
+
+Same logic applies for text copied from system clipboard, but the registers
+from `g:yb_clip_registers` are used for storing.
+
+To paste something from a specific register, use the normal vim commands: `"ap`
+in normal mode, `<C-r>a` in insert mode, etc.
+
+To check only the registers used by yank-bank, you can use the `:YB` command, or
+the built-in `:registers` command which shows all registers.
+
+
+VIM YANKS IN A NUTSHELL                          *vim-yanks-in-a-nutshell*
+
+In vim when you yank something it is stored into the `"` unnamed register and
+the `0` registers. If you then delete something, the unnamed register is replaced
+by the text you deleted (unless you explicitly delete to a named register or
+the 'black hole' register `_`). Now if you yank something again, the unnamed
+register and the `0` registers are replaced with what you yanked and your initial
+yank is completely lost.
+
+On builds that support it, the `*` register is the system clipboard. When you
+copy something from another program using system commands, it is saved to the
+`*` register. If you have clipboard set to `unnamed`, then this register is
+shared between vim and system clipboard so your system clipboard yanks can be
+easily lost in a similar way to how vim yanks are lost.
+
+vim:ft=help
