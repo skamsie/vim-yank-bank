@@ -61,6 +61,6 @@ You can read a pretty comprehensive article on vim registers and yanking [here](
 
 **Why another plugin for dealing with this 'problem'?**
 
-Because it leverages vim's builtin yank functionality without altering the default behavior.
+Because it leverages vim's builtin yank functionality without altering the default behavior (too much).
 It does not create any new mappings and it does not overwrite any commands. It's like you would use named
 yanks everytime, but the plugin does it automatically for you.
